@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/chrome-manifest.json",
+  "manifest_version": 3,
+  "version": "1.0",
+  "name": "your-tab",
+  "description": "Versatile, customizable new tab page for developers.",
+  "author": "Joseph Gerald",
+  "chrome_url_overrides": {
+    "newtab": "tab/index.html"
+  },
+  "permissions": [
+    "storage"
+  ]
+}
