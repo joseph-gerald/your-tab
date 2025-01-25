@@ -12,23 +12,3 @@ input:focus {
 
     outline: none;
 }
-
-:root {
-    --color-text: #000000;
-    --color-background: #ffffff;
-    --color-primary: #0d1059;
-    --color-secondary: #9ea0ea;
-    --color-accent: #6062ad;
-    --color-border: #D4D4D4;
-    --focus-color: #00000050;
-}
-
-:root.dark {
-    --color-text: #ffffff;
-    --color-background: #100e14;
-    --color-primary: #0d1059;
-    --color-secondary: #9a9ce9;
-    --color-accent: #6062ad;
-    --color-border: #202020;
-    --focus-color: #ffffff50;
-}
