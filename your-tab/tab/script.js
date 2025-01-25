@@ -30,7 +30,7 @@ const config = {
                         {
                             "type": "dropdown",
                             "label": "Departures from Sandvika",
-                            "open": false,
+                            "open": true,
                             "box": true,
                             "children": [
                                 {
@@ -38,7 +38,7 @@ const config = {
                                     "tag": "iframe",
                                     "src": "https://rtd.banenor.no/web_client/std?station=SV&layout=landscape&content=departure&notice=yes&header=no&page=1",
                                     "width": "450px",
-                                    "height": "253px",
+                                    "height": "253.5px"
                                 }
                             ]
                         }
@@ -50,11 +50,17 @@ const config = {
                         {
                             "type": "container",
                             "box": true,
+                            "gap": 1,
                             "children": [
+                                {
+                                    "type": "date",
+                                    "class": "text-2xl text-center",
+                                    "format": "DD MONTH_NAME YYYY"
+                                },
                                 {
                                     "type": "time",
                                     "class": "text-6xl font-bold text-center",
-                                    "format": "HH:mm", // HH:mm:ss
+                                    "format": "HH:MM:SS"
                                 }
                             ]
                         },
@@ -225,7 +231,7 @@ function parseConfig(config) {
             return container;
         case "dropdown":
             const dropdown = document.createElement("div");
-            dropdown.className = "dropdown bg-highlight h-full grow border border-border rounded-md overflow-hidden";
+            dropdown.className = "dropdown" + (config.box ? " bg-highlight h-full grow border border-border rounded-md overflow-hidden" : "");
 
             const dropdownToggle = document.createElement("div");
             dropdownToggle.className = "dropdown-toggle flex justify-between select-none cursor-pointer p-3";
@@ -279,8 +285,8 @@ function parseConfig(config) {
 
             const formattedTime = config.format
                 .replace("HH", hours.toString().padStart(2, '0'))
-                .replace("mm", minutes.toString().padStart(2, '0'))
-                .replace("ss", seconds.toString().padStart(2, '0'));
+                .replace("MM", minutes.toString().padStart(2, '0'))
+                .replace("SS", seconds.toString().padStart(2, '0'));
 
             timeElement.innerHTML = formattedTime;
 
@@ -292,13 +298,35 @@ function parseConfig(config) {
 
                 const formattedTime = config.format
                     .replace("HH", hours.toString().padStart(2, '0'))
-                    .replace("mm", minutes.toString().padStart(2, '0'))
-                    .replace("ss", seconds.toString().padStart(2, '0'));
+                    .replace("MM", minutes.toString().padStart(2, '0'))
+                    .replace("SS", seconds.toString().padStart(2, '0'));
 
                 timeElement.innerHTML = formattedTime;
             }, 1000);
 
             return timeElement;
+        case "date":
+            {
+                const dateElement = document.createElement("p");
+                dateElement.className = config.class;
+
+                const date = new Date();
+                const day = date.getDate();
+                const month = date.getMonth();
+                const year = date.getFullYear();
+
+                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                
+                const formattedDate = config.format
+                    .replace("DD", day.toString().padStart(2, '0'))
+                    .replace("MM", (month+1).toString().padStart(2, '0'))
+                    .replace("YYYY", year.toString())
+                    .replace("MONTH_NAME", monthNames[month]);
+
+                dateElement.innerHTML = formattedDate;
+
+                return dateElement;
+            }
         case "asset-graph":
             const graphContainer = document.createElement("div");
             graphContainer.className = config.class || `relative bg-highlight h-full h-fit grow border border-border rounded-md flex justify-center overflow-hidden`;
@@ -332,12 +360,12 @@ function parseConfig(config) {
             window.onresize = () => {
                 chart.resize(chartContainer.clientWidth, chartContainer.clientHeight);
             };
-            
+
             fetch(config.src).then(response => response.json()).then(data => {
                 const priceData = data.history.map(d => ({ time: d.unixTime, value: d.value }));
                 const change24h = data.history[data.history.length - 1].value - data.history[0].value;
                 const change24hPercentage = (change24h / data.history[0].value) * 100;
-            
+
                 const priceSeries = chart.addBaselineSeries({
                     baseValue: {
                         type: 'price',
@@ -350,22 +378,22 @@ function parseConfig(config) {
                     bottomFillColor1: 'rgba( 239, 83, 80, 0.05)',
                     bottomFillColor2: 'rgba( 239, 83, 80, 0.28)'
                 });
-            
+
                 chart.timeScale().applyOptions({
                     borderColor: '#a0a0a010',
                     barSpacing: 10,
                 })
-            
+
                 chart.priceScale("right").applyOptions({
                     borderColor: "#a0a0a010",
                 });
-            
+
                 tickerInfo.innerHTML = config.ticker + " / " + change24hPercentage.toFixed(2) + "%";
-            
+
                 priceSeries.setData(priceData);
                 chart.timeScale().fitContent();
             });
-            
+
             graphContainer.appendChild(tickerInfo);
             graphContainer.appendChild(chartContainer);
 
