@@ -3,22 +3,33 @@ const content = document.getElementById('content');
 const settingsContainer = document.getElementById('settings-container');
 const settingsOpen = document.getElementById('settings-open');
 
+const configSelect = document.getElementById('config-select');
+const configName = document.getElementById('config-name');
+const configSave = document.getElementById('config-save');
+const configDelete = document.getElementById('config-delete');
+const config = document.getElementById('config');
+
 const settings = [
     { name: "settings-icon-hover-only", type: "checkbox", input: document.getElementById("settings-icon-hover"), value: false },
+    { name: "config-selected", type: "select", input: configSelect, value: "default" },
 ]
 
 const ipAddress = document.getElementById('ip-address');
 const percentageIncrease = document.getElementById('percentage-increase');
 
-const config = {
+let boxClasses = "bg-highlight border border-border rounded-md";
+
+const defaultConfig = {
     "type": "root",
+    "box_class": "bg-[#000000b0] backdrop-blur-md shadow-lg p-4",
+    "body_class": "bg-[url(https://up.jooo.tech/1625)] bg-cover text-text font-body",
     "class": "flex flex-col items-center justify-center gap-4 h-screen w-screen",
     "children": [
         {
-            "type": "html",
-            "tag": "p",
-            "class": "text-2xl font-bold",
-            "content": "Good Morning, User!"
+            "type": "greeting",
+            "mode": "good_time_of_day",
+            "class": "text-2xl font-bold text-white",
+            "name": "User"
         },
         {
             "type": "container",
@@ -30,15 +41,16 @@ const config = {
                         {
                             "type": "dropdown",
                             "label": "Departures from Sandvika",
+                            "class": "p-0",
                             "open": true,
                             "box": true,
                             "children": [
                                 {
                                     "type": "html",
                                     "tag": "iframe",
-                                    "src": "https://rtd.banenor.no/web_client/std?station=SV&layout=landscape&content=departure&notice=yes&header=no&page=1",
+                                    "src": "https://rtd.banenor.no/rtd.html#/?id=SV-RTD%2FDeparture&page=0&pageCount=1&hideNotice=false&noPassengerDisplay=false&header=false&wrapperName=landscape&display=rtd",
                                     "width": "450px",
-                                    "height": "253.5px"
+                                    "height": "282px"
                                 }
                             ]
                         }
@@ -67,6 +79,7 @@ const config = {
                         {
                             "type": "asset-graph",
                             "ticker": "SOL",
+                            "background": "FFFFFF00",
                             "src": "https://api.phantom.app/price-history/v1?token=solana%3A101%2FnativeToken%3A501&type=1D"
                         }
                     ]
@@ -75,6 +88,46 @@ const config = {
         }
     ]
 };
+
+function getConfigs() {
+    return JSON.parse(localStorage.getItem('configs')) || {};
+}
+
+function saveConfig(name) {
+    const configs = getConfigs();
+    configs[name] = JSON.parse(config.value);
+    localStorage.setItem('configs', JSON.stringify(configs));
+}
+
+function deleteConfig(name) {
+    const configs = getConfigs();
+    delete configs[name];
+    localStorage.setItem('configs', JSON.stringify(configs));
+}
+
+configSave.addEventListener('click', () => {
+    saveConfig(configName.value);
+    notify("Configs", `${configName.value} has been saved`, 2500, ["border-l-green-900"])
+    loadConfig(getConfigs()[configName.value]);
+});
+
+configDelete.addEventListener('click', () => {
+    deleteConfig(configName.value);
+    configName.value = "default";
+    notify("Configs", `${configName.value} has been deleted`, 2500, ["border-l-red-900"])
+});
+
+configSelect.addEventListener('change', () => {
+    editConfig(configSelect.value);
+
+    localStorage.setItem("config-selected", configSelect.value);
+    loadConfig(getConfigs()[configSelect.value]);
+});
+
+function editConfig(name) {
+    config.value = JSON.stringify(getConfigs()[name], null, 4);
+    configName.value = name;
+}
 
 function getSetting(name) {
     return localStorage.getItem(name);
@@ -88,11 +141,11 @@ function setupSettingsMenu() {
             settingsContainer.classList.toggle('hidden');
 
             settingsContainer.animate([
-                { transform: 'translateY(15%)', opacity: 0, backdropFilter: 'blur(0px)', backgroundColor: '#1a1a1a00' },
-                { transform: 'translateY(0)', opacity: 1, backdropFilter: 'blur(6px)', backgroundColor: '#0a0a0aA0' },
+                { paddingTop: "100px", opacity: 0, backdropFilter: 'blur(0px)', backgroundColor: '#1a1a1a00', filter: 'blur(6px)' },
+                { paddingTop: "0", opacity: 1, backdropFilter: 'blur(6px)', backgroundColor: '#0a0a0aA0', filter: 'blur(0px)' },
             ], {
-                duration: 300,
-                easing: 'ease-in-out',
+                duration: 200,
+                easing: 'ease-out',
                 fill: 'forwards'
             })
         }
@@ -101,11 +154,11 @@ function setupSettingsMenu() {
     settingsContainer.addEventListener('click', (e) => {
         if (e.target === settingsContainer) {
             settingsContainer.animate([
-                { transform: 'translateY(0)', opacity: 1, backdropFilter: 'blur(6px)', backgroundColor: '#0a0a0aA0' },
-                { transform: 'translateY(15%)', opacity: 0, backdropFilter: 'blur(0px)', backgroundColor: '#1a1a1a00' },
+                { paddingTop: "0", opacity: 1, backdropFilter: 'blur(6px)', backgroundColor: '#0a0a0aA0', filter: 'blur(0px)' },
+                { paddingTop: "100px", opacity: 0, backdropFilter: 'blur(0px)', backgroundColor: '#1a1a1a00', filter: 'blur(6px)' },
             ], {
-                duration: 300,
-                easing: 'ease-in-out',
+                duration: 200,
+                easing: 'ease-in',
                 fill: 'forwards'
             }).onfinish = () => {
                 settingsContainer.classList.toggle('hidden');
@@ -115,6 +168,19 @@ function setupSettingsMenu() {
 }
 
 function loadSettings() {
+    const configs = getConfigs();
+    
+    if (Object.keys(configs).length === 0) {
+        localStorage.setItem('configs', JSON.stringify({ default: defaultConfig }));
+    }
+
+    for (const key in configs) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.innerHTML = key;
+        configSelect.appendChild(option);
+    }
+
     settings.forEach(setting => {
         if (localStorage.getItem(setting.name) === null) {
             localStorage.setItem(setting.name, setting.value);
@@ -123,6 +189,9 @@ function loadSettings() {
         switch (setting.type) {
             case "checkbox":
                 setting.input.checked = localStorage.getItem(setting.name) === 'true';
+                break;
+            case "select":
+                setting.input.value = localStorage.getItem(setting.name);
                 break;
         }
 
@@ -134,6 +203,8 @@ function loadSettings() {
             }
         });
     });
+
+    editConfig(getSetting("config-selected"));
 
     if (getSetting("settings-icon-hover-only") === 'true') {
         settingsOpen.classList.add('-translate-x-14', 'hover:translate-x-0', 'pr-14', 'hover:pr-0');
@@ -201,15 +272,20 @@ function initializeDropdowns() {
     });
 }
 
-function parseConfig(config) {
+function loadConfig(config) {
     switch (config.type) {
         case "root":
+            content.innerHTML = "";
             content.className = config.class;
 
+            boxClasses = config.box_class || boxClasses;
+            body.className = config.body_class || "bg-background text-text font-body";
+
             config.children.forEach(child => {
-                content.appendChild(parseConfig(child));
+                content.appendChild(loadConfig(child));
             });
 
+            initializeDropdowns();
             return content;
         case "container":
             const container = document.createElement("div");
@@ -221,17 +297,19 @@ function parseConfig(config) {
 
             if (config.box) {
                 const padding = config.padding || 4;
-                container.classList.add("p-" + padding, "bg-highlight", "rounded-md", "shadow-lg", "border", "border-border");
+                container.classList.add("p-" + padding, "shadow-lg");
+                container.classList.add(...boxClasses.split(" "));
             }
 
             config.children.forEach(child => {
-                container.appendChild(parseConfig(child));
+                container.appendChild(loadConfig(child));
             });
 
             return container;
         case "dropdown":
             const dropdown = document.createElement("div");
-            dropdown.className = "dropdown" + (config.box ? " bg-highlight h-full grow border border-border rounded-md overflow-hidden" : "");
+            dropdown.className = "dropdown" + (config.box ? " h-full grow overflow-hidden " + boxClasses : "") + " " + (config.class || "");
+            dropdown.style.padding = "0px";
 
             const dropdownToggle = document.createElement("div");
             dropdownToggle.className = "dropdown-toggle flex justify-between select-none cursor-pointer p-3";
@@ -255,7 +333,7 @@ function parseConfig(config) {
             }
 
             config.children.forEach(child => {
-                dropdownContent.appendChild(parseConfig(child));
+                dropdownContent.appendChild(loadConfig(child));
             });
 
             dropdown.appendChild(dropdownContent);
@@ -274,6 +352,43 @@ function parseConfig(config) {
 
             return element;
 
+        case "greeting":
+            {
+                const greetingElement = document.createElement("p");
+                greetingElement.className = config.class;
+
+                const date = new Date();
+
+                switch (config.mode) {
+                    case "good_time_of_day":
+                        const hours = date.getHours();
+                        const timeOfDay = Math.floor(hours / 6);
+
+                        switch (timeOfDay) {
+                            case 0:
+                                greetingElement.innerHTML = `Good night, ${config.name}!`;
+                                break;
+                            case 1:
+                                greetingElement.innerHTML = `Good morning, ${config.name}!`;
+                                break;
+                            case 2:
+                                greetingElement.innerHTML = `Good afternoon, ${config.name}!`;
+                                break;
+                            case 3:
+                                greetingElement.innerHTML = `Good evening, ${config.name}!`;
+                                break;
+                            default:
+                                greetingElement.innerHTML = `Hello, ${config.name}!`;
+                                break;
+                        }
+                        break;
+                    default:
+                        greetingElement.innerHTML = `Hello, ${config.name}!`;
+                        break;
+                }
+
+                return greetingElement;
+            }
         case "time":
             const timeElement = document.createElement("p");
             timeElement.className = config.class;
@@ -290,11 +405,17 @@ function parseConfig(config) {
 
             timeElement.innerHTML = formattedTime;
 
-            setInterval(() => {
+            let lastSeconds = -1;
+            function update() {
                 const date = new Date();
                 const hours = date.getHours();
                 const minutes = date.getMinutes();
                 const seconds = date.getSeconds();
+
+                if (seconds === lastSeconds) {
+                    return requestAnimationFrame(update);
+                }
+                lastSeconds = seconds;
 
                 const formattedTime = config.format
                     .replace("HH", hours.toString().padStart(2, '0'))
@@ -302,7 +423,10 @@ function parseConfig(config) {
                     .replace("SS", seconds.toString().padStart(2, '0'));
 
                 timeElement.innerHTML = formattedTime;
-            }, 1000);
+
+                requestAnimationFrame(update);
+            }
+            update();
 
             return timeElement;
         case "date":
@@ -316,10 +440,10 @@ function parseConfig(config) {
                 const year = date.getFullYear();
 
                 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                
+
                 const formattedDate = config.format
                     .replace("DD", day.toString().padStart(2, '0'))
-                    .replace("MM", (month+1).toString().padStart(2, '0'))
+                    .replace("MM", (month + 1).toString().padStart(2, '0'))
                     .replace("YYYY", year.toString())
                     .replace("MONTH_NAME", monthNames[month]);
 
@@ -329,7 +453,7 @@ function parseConfig(config) {
             }
         case "asset-graph":
             const graphContainer = document.createElement("div");
-            graphContainer.className = config.class || `relative bg-highlight h-full h-fit grow border border-border rounded-md flex justify-center overflow-hidden`;
+            graphContainer.className = config.class || `relative h-full h-fit grow flex justify-center overflow-hidden ${boxClasses}`;
 
             const tickerInfo = document.createElement("p");
             tickerInfo.className = "absolute top-3 left-3 z-10 font-bold";
@@ -340,7 +464,7 @@ function parseConfig(config) {
                 layout: {
                     textColor: '#dcdcdc',
                     lineColor: '#a0a0a0',
-                    background: { type: 'solid', color: '#0f0f0f' },
+                    background: { type: 'solid', color: '#' + config.background || '00000000' },
                     attributionLogo: false
                 },
                 grid: {
@@ -407,12 +531,68 @@ function parseConfig(config) {
     }
 }
 
-function loadConfig(config) {
-    parseConfig(config);
-    initializeDropdowns();
-}
-
 loadSettings();
 setupSettingsMenu();
 
-loadConfig(config);
+loadConfig(getConfigs()[getSetting("config-selected")] || defaultConfig);
+
+// UTILS
+
+function notify(title, message, duration = 2500, classes = []) {
+    const notification = document.createElement("notification");
+    let notifications = document.getElementById("notifications");
+
+    if (!notifications) {
+        notifications = document.createElement("div");
+        notifications.id = "notifications";
+        notifications.classList.add("fixed", "bottom-3", "right-3", "m-4", "z-50");
+        document.body.appendChild(notifications);
+    }
+
+    notification.classList.add("bg-[#10101090]", "hover:bg-[#101010A0]", "backdrop-blur-lg", "w-full", "sm:min-w-[275px]", "flex", "flex-col");
+    notification.classList.add("duration-500", "blur-sm", "opacity-0", "translate-x-[calc(100%+2rem)]", "scale-x-1/2", "h-0", "overflow-y-hidden");
+    notification.classList.add("border", "border-[#00000030]", "border-l-accent")
+    notification.classList.add("shadow-md", ...classes);
+
+    setTimeout(() => {
+        notification.classList.add("h-[76px]", "p-4", "py-3", "mt-2", "cursor-pointer");
+        notification.classList.remove("opacity-0", "blur-sm", "translate-x-[calc(100%+2rem)]", "scale-x-1/2", "h-0");
+    }, 25);
+
+    notification.innerHTML = `
+        <span class="flex justify-between"><h3 class="text-xl font-semibold">${title}</h3> <small>${(duration/1000).toFixed(0)}s</small></span>
+        <p class="opacity-80">${message}</p>
+    `;
+
+    notifications.appendChild(notification);
+
+    classes.forEach(klass => notification.classList.add(klass));
+
+    const timerIncrementMS = 1000;
+
+    const callback = () => {
+        const timer = notification.querySelector("small");
+        const timeLeft = parseFloat(timer.textContent) - (timerIncrementMS / 1000);
+
+        if (notification.matches(":hover") && timeLeft > 0) return;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            notification.classList.add("translate-x-[calc(100%+2rem)]", "scale-x-1/2", "blur-sm", "opacity-0");
+            setTimeout(() => {
+                notification.remove();
+            }, 1000);
+        } else {
+            timer.textContent = timeLeft.toFixed(Math.max(4 - timerIncrementMS.toString().split("0").length, 0)) + "s";
+        }
+    }
+
+    const timerInterval = setInterval(callback, timerIncrementMS);
+
+    notification.addEventListener("click", () => {
+        notification.querySelector("small").textContent = "0s";
+
+        callback();
+        clearInterval(timerInterval);
+    });
+}
