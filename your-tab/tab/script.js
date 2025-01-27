@@ -80,7 +80,15 @@ const defaultConfig = {
                             "type": "asset-graph",
                             "ticker": "SOL",
                             "background": "FFFFFF00",
-                            "src": "https://api.phantom.app/price-history/v1?token=solana%3A101%2FnativeToken%3A501&type=1D"
+                            "src": "https://api.phantom.app/price-history/v1?token=solana%3A101%2FnativeToken%3A501&type=1D",
+                            "ws_stream": "wss://history.oraclesecurity.org/trading-view/stream",
+                            "ws_initiator": JSON.stringify({
+                                "a": "subscribe",
+                                "ch": [
+                                    "solusd"
+                                ]
+                            }),
+                            "ws_handler": "selector:p,multiplier:0.00000001"
                         }
                     ]
                 }
@@ -169,7 +177,7 @@ function setupSettingsMenu() {
 
 function loadSettings() {
     const configs = getConfigs();
-    
+
     if (Object.keys(configs).length === 0) {
         localStorage.setItem('configs', JSON.stringify({ default: defaultConfig }));
     }
@@ -458,6 +466,16 @@ function loadConfig(config) {
             const tickerInfo = document.createElement("p");
             tickerInfo.className = "absolute top-3 left-3 z-10 font-bold";
 
+            let socket = null;
+
+            if (config.ws_stream) {
+                socket = new WebSocket(config.ws_stream);
+
+                socket.onopen = () => {
+                    socket.send(config.ws_initiator);
+                };
+            }
+
             const chartContainer = document.createElement("div");
 
             const chartOptions = {
@@ -516,6 +534,26 @@ function loadConfig(config) {
 
                 priceSeries.setData(priceData);
                 chart.timeScale().fitContent();
+
+                const selector = config.ws_handler.split(",")[0].split(":")[1].split(".");
+                const multiplier = parseFloat(config.ws_handler.split(",")[1].split(":")[1]);
+
+                if (socket) {
+                    socket.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        let tempData = data;
+    
+                        for (let i = 0; i < selector.length; i++) {
+                            tempData = tempData[selector[i]];
+                        }
+    
+                        tempData = parseFloat(tempData) * multiplier;
+    
+                        const lastData = priceSeries.data().slice(-1)[0];
+                        lastData.value = tempData;
+                        priceSeries.update(lastData);
+                    }
+                }
             });
 
             graphContainer.appendChild(tickerInfo);
@@ -560,7 +598,7 @@ function notify(title, message, duration = 2500, classes = []) {
     }, 25);
 
     notification.innerHTML = `
-        <span class="flex justify-between"><h3 class="text-xl font-semibold">${title}</h3> <small>${(duration/1000).toFixed(0)}s</small></span>
+        <span class="flex justify-between"><h3 class="text-xl font-semibold">${title}</h3> <small>${(duration / 1000).toFixed(0)}s</small></span>
         <p class="opacity-80">${message}</p>
     `;
 
