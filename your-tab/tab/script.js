@@ -280,6 +280,15 @@ function initializeDropdowns() {
     });
 }
 
+// https://stackoverflow.com/questions/6117814/get-week-of-year-in-javascript-like-in-php
+Date.prototype.getWeekNumber = function () {
+    var d = new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate()));
+    var dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
+};
+
 function loadConfig(config) {
     switch (config.type) {
         case "root":
@@ -444,16 +453,20 @@ function loadConfig(config) {
 
                 const date = new Date();
                 const day = date.getDate();
+                const dayOfTheWeek = date.getDay();
                 const month = date.getMonth();
                 const year = date.getFullYear();
 
                 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                const dayNames = config.day_names || ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
                 const formattedDate = config.format
                     .replace("DD", day.toString().padStart(2, '0'))
+                    .replace("WW", date.getWeekNumber())
                     .replace("MM", (month + 1).toString().padStart(2, '0'))
                     .replace("YYYY", year.toString())
-                    .replace("MONTH_NAME", monthNames[month]);
+                    .replace("DAY_NAME", dayNames[dayOfTheWeek])
+                    .replace("MONTH_NAME", monthNames[month])
 
                 dateElement.innerHTML = formattedDate;
 
@@ -542,13 +555,13 @@ function loadConfig(config) {
                     socket.onmessage = (event) => {
                         const data = JSON.parse(event.data);
                         let tempData = data;
-    
+
                         for (let i = 0; i < selector.length; i++) {
                             tempData = tempData[selector[i]];
                         }
-    
+
                         tempData = parseFloat(tempData) * multiplier;
-    
+
                         const lastData = priceSeries.data().slice(-1)[0];
                         lastData.value = tempData;
                         priceSeries.update(lastData);
