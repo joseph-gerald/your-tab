@@ -22,7 +22,7 @@ let boxClasses = "bg-highlight border border-border rounded-md";
 const defaultConfig = {
     "type": "root",
     "box_class": "bg-[#000000b0] backdrop-blur-md shadow-lg p-4",
-    "body_class": "bg-[url(https://up.jooo.tech/1625)] bg-cover text-text font-body",
+    "body_class": "bg-[url(https://up.jooo.tech/1625)] bg-cover text-text font-body text-xs",
     "class": "flex flex-col items-center justify-center gap-4 h-screen w-screen",
     "children": [
         {

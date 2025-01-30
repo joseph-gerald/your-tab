@@ -6,7 +6,7 @@
     "directory": "examples/init"
   },
   "name": "your-tab",
-  "description": "An Extension.js example.",
+  "description": "Versatile, customizable new tab page for developers.",
   "version": "0.0.1",
   "keywords": [
     "extension",
@@ -25,8 +25,8 @@
   },
   "private": true,
   "author": {
-    "name": "Your Name",
-    "email": "your@email.com",
-    "url": "https://yourwebsite.com"
+    "name": "Joseph Gerald",
+    "email": "contact@jooo.tech",
+    "url": "https://jooo.tech"
   }
 }

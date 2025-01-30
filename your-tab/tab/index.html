@@ -18,17 +18,17 @@
         <img width="30px" class="fill-white text-white" src="../public/assets/settings-gears-svgrepo-com.svg" alt="">
     </button>
 
-    <main class="flex hidden flex-col items-center justify-center gap-4 h-screen w-screen fixed left-0 top-0 z-30 w-full" id="settings-container">
-        <h2 class="text-2xl font-bold">
+    <main class="flex hidden flex-col items-center justify-center gap-4 h-screen w-screen fixed left-0 top-0 pb-8 z-30 w-full" id="settings-container">
+        <h2 class="text-2xl font-bold mt-8">
             Settings
         </h2>
 
-        <div class="bg-highlight p-3 border border-border rounded-md flex justify-center w-full container">
+        <div class="bg-highlight p-3 border border-border rounded-md flex justify-center w-full h-full container">
             <ul class="flex flex-col gap-4 w-full">
                 <li class="flex items-center gap-2">
                     Settings icon only on hover: <input type="checkbox" id="settings-icon-hover">
                 </li>
-                <li>
+                <li class="h-full flex flex-col">
                     <h3 class="text-xl font-bold">
                         Configuration
                     </h3>
@@ -44,7 +44,7 @@
                             Delete
                         </button>
                     </div>
-                    <textarea name="" id="config" class="w-full min-w-96 mt-2 h-96 bg-background border border-border rounded-md p-2"></textarea>
+                    <textarea name="" id="config" class="w-full min-w-96 mt-2 h-full bg-background border border-border rounded-md p-2"></textarea>
                 </li>
             </ul>
         </div>
