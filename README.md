@@ -1,5 +1,9 @@
 # your-tab
 Versatile, customizable new tab page for developers
 
-### Documentation
+## Download
+Go to [releases](https://github.com/joseph-gerald/your-tab/releases) and download the appropriate distribution.
+
+
+## Documentation
 Coming soon
