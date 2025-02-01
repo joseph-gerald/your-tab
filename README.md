@@ -6,4 +6,4 @@ Go to [releases](https://github.com/joseph-gerald/your-tab/releases) and downloa
 
 
 ## Documentation
-Coming soon
+[Docs](/docs)
