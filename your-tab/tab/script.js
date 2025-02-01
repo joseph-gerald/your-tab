@@ -490,10 +490,11 @@ function loadConfig(config) {
             }
 
             const chartContainer = document.createElement("div");
+            const textColor = config.text_color || "#dcdcdc";
 
             const chartOptions = {
                 layout: {
-                    textColor: '#dcdcdc',
+                    textColor: textColor,
                     lineColor: '#a0a0a0',
                     background: { type: 'solid', color: '#' + config.background || '00000000' },
                     attributionLogo: false
