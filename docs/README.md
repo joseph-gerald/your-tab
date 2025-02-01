@@ -3,6 +3,8 @@ Your-tab uses JSON to build the newtab page, the syntax is easy to follow and un
 
 ## Getting started
 ### Example Config
+![image](https://github.com/user-attachments/assets/562554ba-b700-4acf-971d-5458065cc0e0)
+
 ```json
 {
   "type": "root",
@@ -103,6 +105,9 @@ Root element should be the first element and contains the box and body style.
 
 #### container
 Wrapper for flex `DIV` used to grouping/containing elements.
+
+![image](https://github.com/user-attachments/assets/1ff7fc7a-58cf-415b-8938-742bd1f5f2bb)
+
 ```json
 {
     "type": "container",
@@ -126,6 +131,9 @@ Wrapper for flex `DIV` used to grouping/containing elements.
 
 #### dropdown
 Simple dropdown element to contain elements that are not always needed
+
+![image](https://github.com/user-attachments/assets/9b7d8e03-919e-4309-91b2-7a4753b1f1f1)
+
 ```json
 {
     "type": "dropdown",
@@ -151,6 +159,10 @@ Simple dropdown element to contain elements that are not always needed
 
 #### html
 The simplest element, HTML element wrapper.
+
+![image](https://github.com/user-attachments/assets/b1a49fee-f909-48e2-90f3-ede5b6773611)
+
+
 ```json
 {
     "type": "html",
@@ -171,6 +183,9 @@ The simplest element, HTML element wrapper.
 
 #### greeting
 Simple greeting to the user.
+
+![image](https://github.com/user-attachments/assets/a6ea526a-327e-4069-9c8e-2b2cf3e9db19)
+
 ```json
 {
     "type": "greeting",
@@ -185,11 +200,14 @@ Simple greeting to the user.
 
 #### time
 Time of day
+
+![image](https://github.com/user-attachments/assets/155ff463-d118-4f70-a8db-8343119438ab)
+
 ```json
 {
     "type": "time",
     "class": "text-6xl font-bold text-center",
-    "format": "Its HH:MM:SS" // HH:MM:SS are available
+    "format": "Its HH:MM:SS" // HH, MM, SS are available
 }
 ```
 ```html
@@ -200,6 +218,9 @@ Time of day
 
 #### date
 Date information
+
+![image](https://github.com/user-attachments/assets/6255aa26-7116-4477-9bcb-e550729ab220)
+
 ```json
 {
     "type": "date",
@@ -214,6 +235,9 @@ Date information
 
 #### asset-graph
 Trading view chart of an asset 
+
+![image](https://github.com/user-attachments/assets/7b717b1e-213a-4e21-b6c7-bf5945f24e69)
+
 ```json
 {
     "type": "asset-graph",
